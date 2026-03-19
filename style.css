@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-premium-primary: #7c3aed;
+  --color-premium-bg: #e2e8f0;
+  /* Slightly darker for better neumorphic contrast */
+  --color-premium-card: #e2e8f0;
+  --color-premium-text: #334155;
+}
+
+@layer base {
+  body {
+    @apply bg-premium-bg text-premium-text antialiased overflow-hidden m-0 p-0 h-screen w-screen;
+  }
+}
+
+@layer components {
+
+  /* Neumorphic Shadow Outset */
+  .neu-outset {
+    background: #e2e8f0;
+    box-shadow: 20px 20px 60px #c0c5cc, -20px -20px 60px #ffffff;
+    @apply rounded-[2.5rem];
+  }
+
+  /* Neumorphic Shadow Inset */
+  .neu-inset {
+    background: #e2e8f0;
+    box-shadow: inset 6px 6px 12px #c0c5cc, inset -6px -6px 12px #ffffff;
+    @apply rounded-2xl;
+  }
+
+  /* Sidebar Active Style */
+  .sidebar-item-neu {
+    @apply flex items-center gap-4 p-4 rounded-2xl text-slate-500 transition-all duration-300;
+  }
+
+  .sidebar-item-neu.active {
+    background: #e2e8f0;
+    box-shadow: inset 8px 8px 16px #c0c5cc, inset -8px -8px 16px #ffffff;
+    @apply text-purple-600 font-bold;
+  }
+}

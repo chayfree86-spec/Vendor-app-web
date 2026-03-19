@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopTracer | Neumorphic UI Full</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Custom Neumorphic Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            box-shadow: inset 2px 2px 5px #c0c5cc, inset -2px -2px 5px #ffffff;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            box-shadow: 2px 2px 5px #c0c5cc, -2px -2px 5px #ffffff;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            box-shadow: inset 1px 1px 2px #c0c5cc, inset -1px -1px 2px #ffffff;
+            background: #f0f4f8;
+        }
+    </style>
+</head>
+
+<body x-data="{
+    activeTab: 'Home',
+    showPurchaseModal: false,
+    selectedSupplier: '',
+    searchQuery: '',
+    suppliers: ['Jaipur Silks Pvt Ltd.', 'Royal Handlooms', 'Global Textiles', 'Elite Threads', 'Modern Fab', 'Classic Weave'],
+    get filteredSuppliers() {
+        return this.suppliers.filter(s => s.toLowerCase().includes(this.searchQuery.toLowerCase()))
+    }
+}">
+    <!-- Full-width/height Neumorphic Wrapper -->
+    <div class="flex h-screen w-screen bg-[#e2e8f0]">
+
+        <!-- Sidebar -->
+        <aside class="w-80 h-full p-8 flex flex-col flex-shrink-0 bg-[#e2e8f0]">
+            <!-- Logo -->
+            <div class="flex items-center gap-4 mb-14 px-2">
+                <div class="w-12 h-12 neu-outset flex items-center justify-center text-purple-600 rotate-12 bg-[#e2e8f0]"
+                    style="box-shadow: 8px 8px 16px #c0c5cc, -8px -8px 16px #ffffff; border-radius: 1rem;">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight leading-none text-slate-800 uppercase">ShopTracer</h1>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 block">Tranquil Flow</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 space-y-4 px-2">
+                <template x-for="item in [
+                    { name: 'Home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                    { name: 'Suppliers', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+                    { name: 'Records', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+                    { name: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
+                ]">
+                    <button @click="activeTab = item.name" class="sidebar-item-neu w-full p-4 !mb-2 flex items-center gap-4 transition-all"
+                        :class="activeTab === item.name ? 'active text-purple-600' : 'group text-slate-500'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"></path>
+                        </svg>
+                        <span class="font-bold text-sm" x-text="item.name"></span>
+                    </button>
+                </template>
+            </nav>
+
+            <!-- Account Section -->
+            <div class="mt-auto pt-10 px-2 flex flex-col gap-4">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">Account</p>
+                <div class="neu-inset p-4 flex items-center gap-4" style="border-radius: 1.5rem;">
+                    <img src="https://i.pravatar.cc/100?u=aryan" class="w-10 h-10 rounded-full border border-slate-300"
+                        alt="Avatar">
+                    <div class="overflow-hidden">
+                        <p class="text-[11px] font-bold truncate text-slate-700">Aryan Sharma</p>
+                        <p class="text-[9px] text-slate-400 font-bold">Store Manager</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto px-16 py-4 font-outfit">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-14">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-800 leading-none">Financial Overview</h2>
+                    <p class="text-[10px] text-slate-500 font-medium opacity-80 mt-1">Daily snapshot of your shop's performance.</p>
+                </div>
+                <div class="flex gap-4">
+                    <button @click="showPurchaseModal = true"
+                        class="neu-outset px-5 py-2 text-purple-600 font-bold text-[10px] tracking-wide flex items-center gap-2"
+                        style="box-shadow: 4px 4px 10px #c0c5cc, -4px -4px 10px #ffffff; border-radius: 0.8rem;">
+                        <span class="text-lg">+</span> Add Purchase
+                    </button>
+                    <button
+                        class="neu-outset px-5 py-2 text-blue-600 font-bold text-[10px] tracking-wide flex items-center gap-2"
+                        style="box-shadow: 4px 4px 10px #c0c5cc, -4px -4px 10px #ffffff; border-radius: 0.8rem;">
+                        <span class="text-lg">+</span> Add Payment
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards - Even More Compact -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-16">
+                <template x-for="stat in [
+                    { label: 'Total Purchase', value: '₹4,82,900', trend: '+12.5%', icon: 'M16 6h-2v-1c0-1.7-1.3-3-3-3s-3 1.3-3 3v1h-2c-1.1 0-2 .9-2 2v11c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4v-11c0-1.1-.9-2-2-2zm-6-1c0-.6.4-1 1-1s1 .4 1 1v1h-2v-1z', iconColor: 'text-purple-500', trendColor: 'emerald' },
+                    { label: 'Total Payment', value: '₹3,15,450', trend: '+8.2%', icon: 'M4 7a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2H4zm15 8h-2.5c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5H19v3zm-1.5-3a.5.5 0 100 1 .5.5 0 000-1z', iconColor: 'text-blue-500', trendColor: 'emerald' },
+                    { label: 'Net Balance', value: '₹1,67,450', trend: '-5.1%', icon: 'M19 3h-14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-14c0-1.1-.9-2-2-2zm-11 14h-2v-4h2v4zm4 0h-2v-8h2v8zm4 0h-2v-5h2v5z', iconColor: 'text-orange-500', trendColor: 'rose' }
+                ]">
+                    <div class="neu-outset p-4 relative overflow-hidden group" style="border-radius: 1.2rem;">
+                        <div class="flex justify-between items-start mb-3">
+                            <!-- Neumorphic Icon Container -->
+                            <div class="w-12 h-12 neu-inset flex items-center justify-center" :class="stat.iconColor" style="border-radius: 1rem;">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path :d="stat.icon"></path>
+                                </svg>
+                            </div>
+                            <span :class="'text-' + stat.trendColor + '-500 bg-' + stat.trendColor + '-400/10'" class="text-[9px] font-bold px-2 py-1 rounded-md" x-text="stat.trend"></span>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 opacity-60" x-text="stat.label"></p>
+                        <h3 class="text-2xl font-bold text-slate-800 tracking-tight" x-text="stat.value"></h3>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Table Header -->
+            <div class="mb-3 flex justify-between items-center px-2">
+                <div class="flex items-center gap-4">
+                    <h4 class="text-xl font-bold text-slate-800">Recent Transactions</h4>
+                    <span class="neu-inset px-3 py-1 text-slate-500 text-[8px] font-extrabold uppercase tracking-wide" style="border-radius: 0.6rem;">24 NEW TODAY</span>
+                </div>
+                <button class="text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-purple-600 transition-all flex items-center gap-1">VIEW ALL <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></button>
+            </div>
+
+            <!-- Transaction Items (Bubbly Full Rows) -->
+            <div class="space-y-10 pb-12">
+                <template x-for="txn in [
+                    { name: 'Jaipur Silks Pvt Ltd.', id: '#TRX-89021', date: 'Oct 24, 2023', amount: '45,200', status: 'PAID', color: 'emerald' },
+                    { name: 'Royal Handlooms', id: '#TRX-89022', date: 'Oct 23, 2023', amount: '1,20,000', status: 'PENDING', color: 'amber' },
+                    { name: 'Global Textiles', id: '#TRX-89023', date: 'Oct 22, 2023', amount: '32,850', status: 'PAID', color: 'emerald' },
+                    { name: 'Elite Threads', id: '#TRX-89024', date: 'Oct 21, 2023', amount: '15,400', status: 'OVERDUE', color: 'rose' }
+                ]">
+                    <div class="neu-outset p-4 flex items-center justify-between group"
+                        style="box-shadow: 8px 8px 24px #c0c5cc, -8px -8px 24px #ffffff; border-radius: 4rem;">
+                        <div class="flex items-center gap-10">
+                            <div class="w-12 h-12 neu-inset flex items-center justify-center text-slate-400 font-bold text-base" style="border-radius: 100%;">
+                                <span x-text="txn.name.split(' ').map(n => n[0]).join('')"></span>
+                            </div>
+                            <div>
+                                <h5 class="text-base font-medium text-slate-800" x-text="txn.name"></h5>
+                                <p class="text-[10px] text-slate-400 font-bold mt-1 opacity-80"><span x-text="txn.id"></span> • <span x-text="txn.date"></span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-16">
+                            <span :class="'text-' + txn.color + '-500 bg-' + txn.color + '-400/10'" class="text-[10px] font-extrabold uppercase tracking-widest px-5 py-1.5 rounded-full border border-white/20" x-text="txn.status"></span>
+                            <div class="text-lg font-bold tracking-tight text-slate-800">
+                                <span :class="txn.status === 'PAID' ? 'text-emerald-500' : 'text-rose-500'">₹</span><span x-text="txn.amount"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                      <!-- Purchase Modal Overlay -->
+            <div x-show="showPurchaseModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" style="display: none;">
+                <div @click.away="showPurchaseModal = false" class="neu-outset w-full max-w-2xl p-6 relative overflow-hidden flex flex-col gap-4 bg-[#e2e8f0]"
+                    style="border-radius: 2rem; box-shadow: 20px 20px 60px #c0c5cc, -20px -20px 60px #ffffff;">
+                    
+                    <div class="flex justify-between items-center mb-1">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Add Purchase</h3>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Create new supply entry</p>
+                        </div>
+                        <button @click="showPurchaseModal = false" class="w-8 h-8 neu-outset flex items-center justify-center rounded-full text-slate-400 hover:text-rose-500 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-12 gap-6">
+                        <!-- Date Picker Section -->
+                        <div class="col-span-12 xl:col-span-5 space-y-3" x-data="{ 
+                            currentMonth: 'Oct', 
+                            months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                            currentYear: 2023,
+                            showMonthMenu: false,
+                            showYearMenu: false
+                        }">
+                            <div class="flex justify-between items-center px-1">
+                                <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest">Select Date</label>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="relative" x-data="{ open: false }">
+                                        <button @click="open = !open" class="text-[9px] font-bold text-purple-600 bg-white/40 px-2 py-0.5 rounded-full hover:bg-purple-50 transition-all flex items-center gap-1">
+                                            <span x-text="currentMonth"></span>
+                                            <svg class="w-1.5 h-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" class="absolute z-20 top-full left-0 mt-1 neu-outset p-2 grid grid-cols-3 gap-1 bg-[#e2e8f0] w-32 border border-white/20" style="border-radius: 0.8rem;">
+                                            <template x-for="m in months">
+                                                <button @click="currentMonth = m; open = false" class="text-[8px] font-bold p-1 hover:text-purple-600 rounded" x-text="m"></button>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="relative" x-data="{ open: false }">
+                                        <button @click="open = !open" class="text-[9px] font-bold text-slate-600 bg-white/40 px-2 py-0.5 rounded-full hover:bg-slate-50 transition-all flex items-center gap-1">
+                                            <span x-text="currentYear"></span>
+                                            <svg class="w-1.5 h-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" class="absolute z-20 top-full right-0 mt-1 neu-outset p-2 flex flex-col gap-1 bg-[#e2e8f0] max-h-32 overflow-y-auto w-20 border border-white/20" style="border-radius: 0.8rem;">
+                                            <template x-for="y in [2021, 2022, 2023, 2024, 2025]">
+                                                <button @click="currentYear = y; open = false" class="text-[9px] font-bold p-1 hover:text-purple-600 rounded" x-text="y"></button>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="neu-inset p-3" style="border-radius: 1.2rem;">
+                                <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                                    <template x-for="day in ['S','M','T','W','T','F','S']">
+                                        <span class="text-[7px] font-bold text-slate-400" x-text="day"></span>
+                                    </template>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1">
+                                    <template x-for="i in 31">
+                                        <button class="w-6 h-6 text-[9px] font-bold flex items-center justify-center rounded-md transition-all font-outfit"
+                                            :class="i === 19 ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-600 hover:bg-white/50'"
+                                            x-text="i"></button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Section -->
+                        <div class="col-span-12 xl:col-span-7 flex flex-col gap-4">
+                            <!-- Supplier Dropdown with Search -->
+                            <div class="space-y-3 relative" x-data="{ open: false }">
+                                <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Supplier</label>
+                                <div @click="open = !open" class="neu-inset p-3 flex items-center justify-between cursor-pointer" style="border-radius: 0.8rem;">
+                                    <span class="text-[11px] font-bold text-slate-800" x-text="selectedSupplier || 'Select Supplier'"></span>
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                                <!-- Dropdown List -->
+                                <div x-show="open" @click.away="open = false" class="absolute z-10 top-full left-0 right-0 mt-1 neu-outset p-3 flex flex-col gap-1 w-full bg-[#e2e8f0] border border-white/20" style="border-radius: 1rem; box-shadow: 10px 10px 30px #c0c5cc, -10px -10px 30px #ffffff;">
+                                    <div class="mb-2">
+                                        <input type="text" x-model="searchQuery" placeholder="Search supplier..." class="neu-inset w-full p-2 text-[10px] font-bold text-slate-700 bg-transparent border-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2 transition-all" style="border-radius: 0.6rem;">
+                                    </div>
+                                    <div class="max-h-32 overflow-y-auto pr-1">
+                                        <template x-for="sup in filteredSuppliers">
+                                            <button @click="selectedSupplier = sup; open = false" class="text-left w-full py-2 px-2 text-[10px] font-bold text-slate-500 hover:text-purple-600 hover:bg-white/40 rounded-md transition-all" x-text="sup"></button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Amount Input -->
+                                <div class="space-y-3">
+                                    <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Amount</label>
+                                    <div class="neu-inset p-3 flex items-center gap-2 focus-within:ring-2 focus-within:ring-purple-600 transition-all" style="border-radius: 0.8rem;">
+                                        <span class="text-purple-600 font-bold text-[11px]">₹</span>
+                                        <input type="text" placeholder="0.00" class="bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-800 w-full p-0">
+                                    </div>
+                                </div>
+                                <!-- Bill Upload -->
+                                <div class="space-y-3">
+                                    <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Bill</label>
+                                    <div class="neu-outset border-2 border-dashed border-slate-300 p-2 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-purple-400 hover:bg-purple-50/10 transition-all focus-within:ring-2 focus-within:ring-purple-600 rounded-[0.8rem]">
+                                        <svg class="w-4 h-4 text-slate-300 group-hover:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                        <span class="text-[8px] font-bold text-slate-400 uppercase">Upload</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remarks & Submit -->
+                    <div class="flex flex-col gap-4">
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Remarks</label>
+                            <textarea rows="1" placeholder="Note here..." class="neu-inset p-3 bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-800 w-full" style="border-radius: 1rem;"></textarea>
+                        </div>
+                        <button class="neu-outset w-full py-4 bg-purple-600 text-white font-extrabold text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:shadow-inner transform active:scale-[0.98] transition-all" 
+                            style="border-radius: 1.2rem;">
+                            Confirm Purchase
+                        </button>
+                    </div>
+                </div>
+            </div>
+     </div>
+
+
+
+
+
+
+                <div class="pt-8 text-center animate-bounce duration-[3000ms]">
+                    <button
+                        class="text-[11px] font-extrabold text-slate-400 hover:text-premium-primary tracking-[0.2em] uppercase flex items-center gap-3 mx-auto transition-all">
+                        LOAD MORE FLOW <span class="text-sm opacity-40">⌄</span>
+                    </button>
+                </div>
+            </main>
+    </div>
+    <script type="module" src="/main.js"></script>
+</body>
+
+</html>
