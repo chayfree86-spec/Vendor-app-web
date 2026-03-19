@@ -48,8 +48,8 @@
             background: #f0f4f8;
         }
     </style>
-  <script type="module" crossorigin src="/assets/index-hgUZdBIV.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BNmRvXll.css">
+  <script type="module" crossorigin src="/assets/index-C-_dNpNK.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-GegUPGd4.css">
 </head>
 
 <body x-data="{
@@ -214,8 +214,8 @@
         <aside class="w-80 h-full p-8 flex flex-col flex-shrink-0 bg-[#e2e8f0]">
             <!-- Logo -->
             <div class="flex items-center gap-4 mb-14 px-2">
-                <div class="w-12 h-12 neu-outset flex items-center justify-center text-purple-600 rotate-12 bg-[#e2e8f0]"
-                    style="box-shadow: 8px 8px 16px #c0c5cc, -8px -8px 16px #ffffff; border-radius: 1rem;">
+                <div class="liquid-glass-icon liquid-glass-icon-lg rotate-12"
+                    style="--glass-accent: 139, 92, 246; --glass-ink: #7c3aed;">
                     <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
                     </svg>
@@ -236,9 +236,12 @@
                 ]">
                     <button @click="activeTab = item.name" class="sidebar-item-neu w-full p-4 !mb-2 flex items-center gap-4 transition-all"
                         :class="activeTab === item.name ? 'active text-purple-600' : 'group text-slate-500'">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"></path>
-                        </svg>
+                        <span class="liquid-glass-icon liquid-glass-icon-sm"
+                            :style="activeTab === item.name ? '--glass-accent: 139, 92, 246; --glass-ink: #7c3aed;' : '--glass-accent: 148, 163, 184; --glass-ink: #64748b;'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"></path>
+                            </svg>
+                        </span>
                         <span class="font-bold text-sm" x-text="item.name"></span>
                     </button>
                 </template>
@@ -268,14 +271,20 @@
                 </div>
                 <div class="flex gap-4">
                     <button @click="showPurchaseModal = true"
-                        class="neu-outset px-5 py-2 text-purple-600 font-bold text-[10px] tracking-wide flex items-center gap-2"
+                        class="neu-outset px-5 py-2 text-red-500 font-bold text-[10px] tracking-wide flex items-center gap-2"
                         style="box-shadow: 4px 4px 10px #c0c5cc, -4px -4px 10px #ffffff; border-radius: 0.8rem;">
-                        <span class="text-lg">+</span> Add Purchase
+                        <span class="liquid-glass-icon liquid-glass-icon-xs" style="--glass-accent: 239, 68, 68; --glass-ink: #ef4444;">
+                            <span class="text-sm font-black leading-none">+</span>
+                        </span>
+                        Add Purchase
                     </button>
                     <button @click="showPaymentModal = true"
                         class="neu-outset px-5 py-2 text-emerald-600 font-bold text-[10px] tracking-wide flex items-center gap-2"
                         style="box-shadow: 4px 4px 10px #c0c5cc, -4px -4px 10px #ffffff; border-radius: 0.8rem;">
-                        <span class="text-lg">+</span> Add Payment
+                        <span class="liquid-glass-icon liquid-glass-icon-xs" style="--glass-accent: 16, 185, 129; --glass-ink: #10b981;">
+                            <span class="text-sm font-black leading-none">+</span>
+                        </span>
+                        Add Payment
                     </button>
                 </div>
             </div>
@@ -283,14 +292,14 @@
             <!-- Dashboard Cards - Even More Compact -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-16">
                 <template x-for="stat in [
-                    { label: 'Total Purchase', value: '₹4,82,900', trend: '+12.5%', icon: 'M16 6h-2v-1c0-1.7-1.3-3-3-3s-3 1.3-3 3v1h-2c-1.1 0-2 .9-2 2v11c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4v-11c0-1.1-.9-2-2-2zm-6-1c0-.6.4-1 1-1s1 .4 1 1v1h-2v-1z', iconColor: 'text-purple-500', trendColor: 'emerald' },
-                    { label: 'Total Payment', value: '₹3,15,450', trend: '+8.2%', icon: 'M4 7a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2H4zm15 8h-2.5c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5H19v3zm-1.5-3a.5.5 0 100 1 .5.5 0 000-1z', iconColor: 'text-blue-500', trendColor: 'emerald' },
-                    { label: 'Net Balance', value: '₹1,67,450', trend: '-5.1%', icon: 'M19 3h-14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-14c0-1.1-.9-2-2-2zm-11 14h-2v-4h2v4zm4 0h-2v-8h2v8zm4 0h-2v-5h2v5z', iconColor: 'text-orange-500', trendColor: 'rose' }
+                    { label: 'Total Purchase', value: '₹4,82,900', trend: '+12.5%', icon: 'M16 6h-2v-1c0-1.7-1.3-3-3-3s-3 1.3-3 3v1h-2c-1.1 0-2 .9-2 2v11c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4v-11c0-1.1-.9-2-2-2zm-6-1c0-.6.4-1 1-1s1 .4 1 1v1h-2v-1z', trendColor: 'emerald', glassAccent: '139, 92, 246', glassInk: '#9333ea' },
+                    { label: 'Total Payment', value: '₹3,15,450', trend: '+8.2%', icon: 'M4 7a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2H4zm15 8h-2.5c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5H19v3zm-1.5-3a.5.5 0 100 1 .5.5 0 000-1z', trendColor: 'emerald', glassAccent: '59, 130, 246', glassInk: '#3b82f6' },
+                    { label: 'Net Balance', value: '₹1,67,450', trend: '-5.1%', icon: 'M19 3h-14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-14c0-1.1-.9-2-2-2zm-11 14h-2v-4h2v4zm4 0h-2v-8h2v8zm4 0h-2v-5h2v5z', trendColor: 'rose', glassAccent: '249, 115, 22', glassInk: '#f97316' }
                 ]">
                     <div class="neu-outset p-4 relative overflow-hidden group" style="border-radius: 1.2rem;">
                         <div class="flex justify-between items-start mb-3">
                             <!-- Neumorphic Icon Container -->
-                            <div class="w-12 h-12 neu-inset flex items-center justify-center" :class="stat.iconColor" style="border-radius: 1rem;">
+                            <div class="liquid-glass-icon liquid-glass-icon-md" :style="'--glass-accent: ' + stat.glassAccent + '; --glass-ink: ' + stat.glassInk + ';'">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path :d="stat.icon"></path>
                                 </svg>
@@ -347,9 +356,9 @@
                     <div class="flex justify-between items-center mb-1">
                         <div>
                             <h3 class="text-xl font-bold text-slate-800">Add Purchase</h3>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Create new supply entry</p>
+                            <p class="text-[9px] text-red-500 font-bold uppercase tracking-widest">Create new supply entry</p>
                         </div>
-                        <button @click="showPurchaseModal = false" class="w-8 h-8 neu-outset flex items-center justify-center rounded-full text-slate-400 hover:text-rose-500 transition-colors">
+                        <button @click="showPurchaseModal = false" class="liquid-glass-icon liquid-glass-icon-xs hover:scale-105 transition-transform" style="--glass-accent: 239, 68, 68; --glass-ink: #ef4444;">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -367,13 +376,13 @@
                                 <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest">Select Date</label>
                                 <div class="flex items-center gap-1.5">
                                     <div class="relative" x-data="{ open: false }">
-                                        <button @click="open = !open" class="text-[9px] font-bold text-purple-600 bg-white/40 px-2 py-0.5 rounded-full hover:bg-purple-50 transition-all flex items-center gap-1">
+                                        <button @click="open = !open" class="text-[9px] font-bold text-red-500 bg-white/40 px-2 py-0.5 rounded-full hover:bg-red-50 transition-all flex items-center gap-1">
                                             <span x-text="currentMonth"></span>
                                             <svg class="w-1.5 h-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                                         </button>
                                         <div x-show="open" @click.away="open = false" class="absolute z-20 top-full left-0 mt-1 neu-outset p-2 grid grid-cols-3 gap-1 bg-[#e2e8f0] w-32 border border-white/20" style="border-radius: 0.8rem;">
                                             <template x-for="m in months">
-                                                <button @click="currentMonth = m; open = false" class="text-[8px] font-bold p-1 hover:text-purple-600 rounded" x-text="m"></button>
+                                                <button @click="currentMonth = m; open = false" class="text-[8px] font-bold p-1 hover:text-red-500 rounded" x-text="m"></button>
                                             </template>
                                         </div>
                                     </div>
@@ -384,7 +393,7 @@
                                         </button>
                                         <div x-show="open" @click.away="open = false" class="absolute z-20 top-full right-0 mt-1 neu-outset p-2 flex flex-col gap-1 bg-[#e2e8f0] max-h-32 overflow-y-auto w-20 border border-white/20" style="border-radius: 0.8rem;">
                                             <template x-for="y in [2021, 2022, 2023, 2024, 2025]">
-                                                <button @click="currentYear = y; open = false" class="text-[9px] font-bold p-1 hover:text-purple-600 rounded" x-text="y"></button>
+                                                <button @click="currentYear = y; open = false" class="text-[9px] font-bold p-1 hover:text-red-500 rounded" x-text="y"></button>
                                             </template>
                                         </div>
                                     </div>
@@ -399,7 +408,7 @@
                                 <div class="grid grid-cols-7 gap-1">
                                     <template x-for="i in 31">
                                         <button class="w-6 h-6 text-[9px] font-bold flex items-center justify-center rounded-md transition-all font-outfit"
-                                            :class="i === 19 ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-600 hover:bg-white/50'"
+                                            :class="i === 19 ? 'bg-red-500 text-white shadow-lg' : 'text-slate-600 hover:bg-white/50'"
                                             x-text="i"></button>
                                     </template>
                                 </div>
@@ -410,7 +419,7 @@
                         <div class="col-span-12 xl:col-span-7 flex flex-col gap-4">
                             <!-- Supplier Dropdown with Search -->
                             <div class="space-y-3 relative" x-data="{ open: false }">
-                                <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Supplier <span class="text-purple-600">*</span></label>
+                                <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Supplier <span class="text-red-500">*</span></label>
                                 <div class="purchase-focus-shell" style="--focus-radius: 0.8rem;">
                                     <button type="button" @click="open = !open; if (open) { focusSupplierSearch() }" class="neu-inset w-full p-3 flex items-center justify-between cursor-pointer outline-none focus:outline-none" style="border-radius: 0.8rem;">
                                         <span class="text-[11px] font-bold text-slate-800" x-text="selectedSupplier || 'Select Supplier'"></span>
@@ -427,8 +436,9 @@
                                                 x-show="speechSupported"
                                                 @click="startVoiceSearch((matchedSupplier) => { selectedSupplier = matchedSupplier; open = false; focusAmountInput() })"
                                                 :disabled="isListening"
-                                                class="h-8 w-8 flex items-center justify-center rounded-full text-purple-600 transition-all duration-300"
-                                                :class="isListening ? 'bg-purple-600 text-white animate-pulse shadow-lg shadow-purple-300/40' : 'bg-white/60 hover:bg-white/90'"
+                                                class="liquid-glass-icon liquid-glass-icon-xs transition-all duration-300"
+                                                :class="isListening ? 'animate-pulse scale-105' : ''"
+                                                style="--glass-accent: 239, 68, 68; --glass-ink: #ef4444;"
                                                 aria-label="Start voice supplier search">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18.5a4.5 4.5 0 004.5-4.5v-4a4.5 4.5 0 10-9 0v4a4.5 4.5 0 004.5 4.5zm0 0v3m-4 0h8"></path>
@@ -438,7 +448,7 @@
                                     </div>
                                     <div class="max-h-32 overflow-y-auto pr-1">
                                         <template x-for="sup in filteredSuppliers">
-                                            <button @click="selectedSupplier = sup; open = false; focusAmountInput()" class="text-left w-full py-2 px-2 text-[10px] font-bold text-slate-500 hover:text-purple-600 hover:bg-white/40 rounded-md transition-all" x-text="sup"></button>
+                                            <button @click="selectedSupplier = sup; open = false; focusAmountInput()" class="text-left w-full py-2 px-2 text-[10px] font-bold text-slate-500 hover:text-red-500 hover:bg-white/40 rounded-md transition-all" x-text="sup"></button>
                                         </template>
                                     </div>
                                 </div>
@@ -447,10 +457,10 @@
                             <div class="grid grid-cols-2 gap-4 items-stretch">
                                 <div class="flex flex-col gap-4">
                                     <div class="space-y-3">
-                                        <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Amount <span class="text-purple-600">*</span></label>
+                                        <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Amount <span class="text-red-500">*</span></label>
                                         <div class="purchase-focus-shell" style="--focus-radius: 0.8rem;">
                                             <div class="neu-inset min-h-[46px] p-3 flex items-center gap-2 transition-all" style="border-radius: 0.8rem;">
-                                                <span class="text-purple-600 font-bold text-[11px]">₹</span>
+                                                <span class="text-red-500 font-bold text-[11px]">₹</span>
                                                 <input x-ref="amountInput" x-model="purchaseAmount" @keydown.enter.prevent="focusRemarksInput()" type="text" placeholder="0.00" class="bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[11px] font-bold text-slate-800 w-full p-0">
                                             </div>
                                         </div>
@@ -466,14 +476,16 @@
                                 <div class="space-y-3 flex flex-col">
                                     <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest pl-1">Bill</label>
                                     <input x-ref="purchaseBillInput" @change="handleImageUpload($event, 'purchase')" type="file" accept="image/*" class="hidden">
-                                    <button type="button" @click="triggerUpload('purchase')" class="neu-outset border-2 border-dashed border-slate-300 p-2 flex-1 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-purple-400 hover:bg-purple-50/10 transition-all rounded-[0.8rem] min-h-[138px]">
+                                    <button type="button" @click="triggerUpload('purchase')" class="neu-outset border-2 border-dashed border-slate-300 p-2 flex-1 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-red-400 hover:bg-red-50/10 transition-all rounded-[0.8rem] min-h-[138px]">
                                         <template x-if="purchaseBillPreview">
                                             <img :src="purchaseBillPreview" alt="Bill preview" class="w-full h-20 object-cover rounded-[0.7rem]">
                                         </template>
                                         <template x-if="!purchaseBillPreview">
-                                            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                            <span class="liquid-glass-icon liquid-glass-icon-sm" style="--glass-accent: 239, 68, 68; --glass-ink: #ef4444;">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                            </span>
                                         </template>
-                                        <span class="text-[8px] font-bold text-slate-400 uppercase" x-text="purchaseBillName || 'Upload Image'"></span>
+                                        <span class="text-[8px] font-bold text-red-500 uppercase tracking-[0.2em]" x-text="purchaseBillName || 'Upload Image'"></span>
                                     </button>
                                 </div>
                             </div>
@@ -499,7 +511,7 @@
                             <h3 class="text-xl font-bold text-slate-800">Add Payment</h3>
                             <p class="text-[9px] text-emerald-600 font-bold uppercase tracking-widest">Record outgoing payment</p>
                         </div>
-                        <button @click="showPaymentModal = false" class="w-8 h-8 neu-outset flex items-center justify-center rounded-full text-slate-400 hover:text-emerald-600 transition-colors">
+                        <button @click="showPaymentModal = false" class="liquid-glass-icon liquid-glass-icon-xs hover:scale-105 transition-transform" style="--glass-accent: 16, 185, 129; --glass-ink: #10b981;">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -571,8 +583,9 @@
                                                 x-show="speechSupported"
                                                 @click="startPaymentVoiceSearch((matchedSupplier) => { paymentSelectedSupplier = matchedSupplier; open = false; focusPaymentAmountInput() })"
                                                 :disabled="isListening"
-                                                class="h-8 w-8 flex items-center justify-center rounded-full text-emerald-600 transition-all duration-300"
-                                                :class="isListening ? 'bg-emerald-600 text-white animate-pulse shadow-lg shadow-emerald-300/40' : 'bg-white/60 hover:bg-white/90'"
+                                                class="liquid-glass-icon liquid-glass-icon-xs transition-all duration-300"
+                                                :class="isListening ? 'animate-pulse scale-105' : ''"
+                                                style="--glass-accent: 16, 185, 129; --glass-ink: #10b981;"
                                                 aria-label="Start voice supplier search">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18.5a4.5 4.5 0 004.5-4.5v-4a4.5 4.5 0 10-9 0v4a4.5 4.5 0 004.5 4.5zm0 0v3m-4 0h8"></path>
@@ -636,7 +649,9 @@
                                             <img :src="paymentReceiptPreview" alt="Receipt preview" class="w-full h-20 object-cover rounded-[0.7rem]">
                                         </template>
                                         <template x-if="!paymentReceiptPreview">
-                                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                            <span class="liquid-glass-icon liquid-glass-icon-sm" style="--glass-accent: 16, 185, 129; --glass-ink: #10b981;">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                            </span>
                                         </template>
                                         <span class="text-[8px] font-bold text-emerald-600 uppercase tracking-[0.22em]" x-text="paymentReceiptName || 'Upload Image'"></span>
                                     </button>
