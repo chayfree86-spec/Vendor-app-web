@@ -54,8 +54,11 @@
     activeTab: 'Home',
     showPurchaseModal: false,
     showPaymentModal: false,
+    showSupplierActionPicker: false,
+    supplierActionTarget: '',
     selectedSupplier: '',
     searchQuery: '',
+    headerSearchQuery: '',
     purchaseAmount: '',
     purchaseBillName: '',
     purchaseBillPreview: '',
@@ -65,15 +68,59 @@
     paymentReceiptName: '',
     paymentReceiptPreview: '',
     paymentMethod: 'Online',
+    supplierFilter: 'All Suppliers',
+    settingsTab: 'Profile Setting',
+    profileAdminName: 'Aryan Sharma',
+    profileBusinessName: 'ShopTracer Retail Hub',
+    profileContact: '+91 98 7654 3210',
+    profileEmail: 'aryan@shoptracer.in',
+    settingsLogoName: 'Recommended: 512 x 512 px, PNG or SVG',
+    settingsLogoPreview: '',
+    profilePin: ['', '', '', ''],
+    profileSaved: false,
     recognition: null,
     isListening: false,
     speechSupported: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
     suppliers: ['Jaipur Silks Pvt Ltd.', 'Royal Handlooms', 'Global Textiles', 'Elite Threads', 'Modern Fab', 'Classic Weave'],
+    supplierDirectory: [
+        { name: 'Global Textiles Co.', phone: '+91 98765 43210', remark: 'Premium fabric partner', place: 'Surat, Gujarat', status: 'Active', statusTone: 'emerald', purchase: '4,52,000', payment: '3,20,000', balance: '1,32,000', balanceTone: 'violet', icon: 'M4 7l8-4 8 4-8 4-8-4zm0 5l8 4 8-4M4 12v5l8 4 8-4v-5', iconInk: '#8b5cf6', iconAccent: '139, 92, 246' },
+        { name: 'NexGen Electronics', phone: '+91 99887 76655', remark: 'POS and billing devices', place: 'Noida, Uttar Pradesh', status: 'Pending Order', statusTone: 'amber', purchase: '12,45,000', payment: '12,45,000', balance: '0', balanceTone: 'emerald', icon: 'M9 17v-6h6v6m-7 4h8a2 2 0 002-2V7a2 2 0 00-2-2h-1l-1-2h-4l-1 2H8a2 2 0 00-2 2v12a2 2 0 002 2z', iconInk: '#ec4899', iconAccent: '236, 72, 153' },
+        { name: 'Organic Harvest Ltd', phone: '+91 94432 11223', remark: 'Organic staples vendor', place: 'Indore, Madhya Pradesh', status: 'Overdue', statusTone: 'rose', purchase: '2,10,500', payment: '85,000', balance: '1,25,500', balanceTone: 'red', icon: 'M12 3c4.5 0 8 3.5 8 8 0 4.5-3.5 8-8 8S4 15.5 4 11c0-1.4.4-2.8 1.1-4L12 3zm-1 5c-1.5 0-3 .6-4 1.7 1.1 1.4 2.6 2.3 4.3 2.5.1-1.2.4-2.8 1.7-4.2-.6 0-1.3 0-2 .1z', iconInk: '#8b5cf6', iconAccent: '168, 85, 247' },
+        { name: 'Modern Machineries', phone: '+91 97766 55443', remark: 'Heavy equipment supply', place: 'Ludhiana, Punjab', status: 'Active', statusTone: 'emerald', purchase: '24,80,000', payment: '22,00,000', balance: '2,80,000', balanceTone: 'violet', icon: 'M9 17V9m0 8H5m4 0h4m6 0v-6m0 6h-4m4 0h2M9 9V7a2 2 0 012-2h2a2 2 0 012 2v2M9 9h6', iconInk: '#8b5cf6', iconAccent: '139, 92, 246' }
+    ],
     get filteredSuppliers() {
         return this.suppliers.filter(s => s.toLowerCase().includes(this.searchQuery.toLowerCase()))
     },
     get filteredPaymentSuppliers() {
         return this.suppliers.filter(s => s.toLowerCase().includes(this.paymentSearchQuery.toLowerCase()))
+    },
+    get filteredSupplierDirectory() {
+        const normalizedQuery = this.headerSearchQuery.trim().toLowerCase()
+        let directory = this.supplierDirectory
+
+        if (this.supplierFilter === 'Pending Balance') {
+            directory = directory.filter((supplier) => supplier.balance !== '0')
+        }
+        if (this.supplierFilter === 'Top Spends') {
+            directory = [...directory].sort((a, b) => Number(b.purchase.replace(/,/g, '')) - Number(a.purchase.replace(/,/g, '')))
+        }
+        if (this.supplierFilter === 'Inactive') {
+            directory = directory.filter((supplier) => supplier.status !== 'Active')
+        }
+
+        if (normalizedQuery) {
+            directory = directory.filter((supplier) =>
+                [supplier.name, supplier.remark, supplier.place, supplier.phone]
+                    .some((value) => value.toLowerCase().includes(normalizedQuery))
+            )
+        }
+
+        return directory
+    },
+    get totalDirectoryPayables() {
+        return this.filteredSupplierDirectory
+            .reduce((sum, supplier) => sum + Number(supplier.balance.replace(/,/g, '')), 0)
+            .toLocaleString('en-IN')
     },
     purchaseFormReady() {
         return this.selectedSupplier.trim() && this.purchaseAmount.trim()
@@ -96,6 +143,9 @@
     focusPaymentSupplierSearch() {
         this.$nextTick(() => this.$refs.paymentSupplierSearchInput?.focus())
     },
+    focusHeaderSearch() {
+        this.$nextTick(() => this.$refs.headerSearchInput?.focus())
+    },
     focusPaymentAmountInput() {
         this.$nextTick(() => this.$refs.paymentAmountInput?.focus())
     },
@@ -105,9 +155,33 @@
     focusConfirmPaymentButton() {
         this.$nextTick(() => this.$refs.confirmPaymentButton?.focus())
     },
+    focusProfilePinStart() {
+        this.$nextTick(() => this.$refs.pin0?.focus())
+    },
+    openSupplierActionPicker(supplierName) {
+        this.supplierActionTarget = supplierName
+        this.showSupplierActionPicker = true
+    },
+    openSupplierPurchaseFlow() {
+        if (!this.supplierActionTarget) return
+        this.selectedSupplier = this.supplierActionTarget
+        this.searchQuery = this.supplierActionTarget
+        this.showSupplierActionPicker = false
+        this.showPurchaseModal = true
+        this.$nextTick(() => this.focusAmountInput())
+    },
+    openSupplierPaymentFlow() {
+        if (!this.supplierActionTarget) return
+        this.paymentSelectedSupplier = this.supplierActionTarget
+        this.paymentSearchQuery = this.supplierActionTarget
+        this.showSupplierActionPicker = false
+        this.showPaymentModal = true
+        this.$nextTick(() => this.focusPaymentAmountInput())
+    },
     triggerUpload(kind) {
         if (kind === 'purchase') this.$refs.purchaseBillInput?.click()
         if (kind === 'payment') this.$refs.paymentReceiptInput?.click()
+        if (kind === 'settingsLogo') this.$refs.settingsLogoInput?.click()
     },
     handleImageUpload(event, kind) {
         const file = event.target.files?.[0]
@@ -122,9 +196,40 @@
             return
         }
 
+        if (kind === 'settingsLogo') {
+            if (this.settingsLogoPreview) URL.revokeObjectURL(this.settingsLogoPreview)
+            this.settingsLogoName = file.name
+            this.settingsLogoPreview = nextUrl
+            return
+        }
+
         if (this.paymentReceiptPreview) URL.revokeObjectURL(this.paymentReceiptPreview)
         this.paymentReceiptName = file.name
         this.paymentReceiptPreview = nextUrl
+    },
+    setPinDigit(index, event) {
+        const value = event.target.value.replace(/\D/g, '').slice(0, 1)
+        this.profilePin[index] = value
+        event.target.value = value
+        if (value && index < 3) {
+            this.$nextTick(() => this.$refs['pin' + (index + 1)]?.focus())
+        }
+    },
+    handlePinBackspace(index, event) {
+        if (event.target.value) {
+            this.profilePin[index] = ''
+            event.target.value = ''
+            return
+        }
+        if (index > 0) {
+            this.$nextTick(() => this.$refs['pin' + (index - 1)]?.focus())
+        }
+    },
+    saveProfileSettings() {
+        this.profileSaved = true
+        setTimeout(() => {
+            this.profileSaved = false
+        }, 2200)
     },
     startVoiceSearch(onMatch = null) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -203,6 +308,36 @@
         }
 
         this.recognition.start()
+    },
+    startHeaderVoiceSearch() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (!SpeechRecognition || this.isListening) return
+
+        if (!this.recognition) {
+            this.recognition = new SpeechRecognition()
+            this.recognition.lang = 'en-IN'
+            this.recognition.interimResults = false
+            this.recognition.maxAlternatives = 1
+            this.recognition.onstart = () => {
+                this.isListening = true
+            }
+            this.recognition.onend = () => {
+                this.isListening = false
+            }
+            this.recognition.onerror = () => {
+                this.isListening = false
+            }
+        }
+
+        this.recognition.onresult = (event) => {
+            const transcript = event.results?.[0]?.[0]?.transcript?.trim() || ''
+            if (!transcript) return
+
+            this.headerSearchQuery = transcript
+            this.focusHeaderSearch()
+        }
+
+        this.recognition.start()
     }
 }">
     <!-- Full-width/height Neumorphic Wrapper -->
@@ -261,10 +396,11 @@
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto px-16 py-4 font-outfit">
+            <div x-show="activeTab === 'Home'">
             <!-- Header -->
             <div class="flex justify-between items-center mb-14">
                 <div>
-                    <h2 class="text-3xl font-bold text-slate-800 leading-none">Financial Overview</h2>
+                    <h2 class="text-lg xl:text-[1.1rem] font-semibold text-slate-800 leading-none">Financial Overview</h2>
                     <p class="text-[10px] text-slate-500 font-medium opacity-80 mt-1">Daily snapshot of your shop's performance.</p>
                 </div>
                 <div class="flex gap-4">
@@ -309,7 +445,389 @@
                     </div>
                 </template>
             </div>
+            </div>
 
+            <div x-show="activeTab === 'Suppliers'" class="pb-12">
+                <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6 mb-10">
+                    <div>
+                        <h2 class="text-lg xl:text-[1.1rem] font-semibold text-slate-800 leading-none">Supplier Directory</h2>
+                        <p class="text-[10px] text-slate-500 font-medium mt-2">Manage supplier records and outstanding balances.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full xl:w-auto xl:min-w-[40rem] xl:justify-end">
+                        <div class="header-search-shell w-full sm:max-w-[22rem] px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <span class="text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"></path>
+                                    </svg>
+                                </span>
+                                <input
+                                    x-ref="headerSearchInput"
+                                    x-model="headerSearchQuery"
+                                    type="text"
+                                    placeholder="Search suppliers, remark, place..."
+                                    class="header-search-input flex-1 min-w-0 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[11px] font-semibold text-slate-700"
+                                >
+                                <button
+                                    type="button"
+                                    @click="startHeaderVoiceSearch()"
+                                    class="liquid-glass-icon liquid-glass-icon-xs transition-all duration-300"
+                                    :class="isListening ? 'scale-105' : 'hover:scale-105'"
+                                    :style="isListening ? '--glass-accent: 244, 63, 94; --glass-ink: #e11d48;' : '--glass-accent: 139, 92, 246; --glass-ink: #7c3aed;'"
+                                    :aria-pressed="isListening"
+                                    aria-label="Start supplier voice search">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18.5a5.5 5.5 0 005.5-5.5V8A5.5 5.5 0 006.5 8v5a5.5 5.5 0 005.5 5.5zm0 0V21m-4-2h8"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="liquid-glass-button-violet w-auto px-6 py-3 text-white font-extrabold text-[10px] uppercase tracking-[0.18em] flex items-center justify-center gap-2" style="border-radius: 1rem;">
+                            <span class="liquid-glass-icon liquid-glass-icon-xs" style="--glass-accent: 255, 255, 255; --glass-ink: #ffffff;">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </span>
+                            <span class="liquid-glass-label-violet">Add Supplier</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 mb-8">
+                    <template x-for="supplier in filteredSupplierDirectory" :key="supplier.name">
+                        <article class="supplier-card p-6">
+                            <div class="flex flex-col xl:flex-row xl:items-center xl:justify-end gap-5 xl:pl-1">
+                                <div class="flex items-start gap-4 min-w-0 xl:w-[25%]">
+                                    <span class="liquid-glass-icon liquid-glass-icon-sm" :style="'--glass-accent: ' + supplier.iconAccent + '; --glass-ink: ' + supplier.iconInk + ';'">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="supplier.icon"></path>
+                                        </svg>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <h3 class="block max-w-full truncate whitespace-nowrap text-lg xl:text-[1.18rem] font-semibold text-slate-800 leading-tight" x-text="supplier.name"></h3>
+                                        <p class="text-[10px] font-normal text-slate-500 mt-2 truncate" x-text="supplier.remark"></p>
+                                        <p class="text-[10px] font-normal text-slate-500 mt-1 truncate" x-text="supplier.place"></p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 xl:w-[60%] min-w-0">
+                                    <div class="supplier-stat-chip p-4">
+                                        <p class="text-[7px] font-normal uppercase tracking-[0.16em] text-slate-400">Total Purchase</p>
+                                        <p class="mt-3 text-[1.3rem] md:text-[1.4rem] xl:text-[1.2rem] font-normal leading-none text-slate-800 whitespace-nowrap">₹<span x-text="supplier.purchase"></span></p>
+                                    </div>
+                                    <div class="supplier-stat-chip p-4">
+                                        <p class="text-[7px] font-normal uppercase tracking-[0.16em] text-slate-400">Total Payment</p>
+                                        <p class="mt-3 text-[1.3rem] md:text-[1.4rem] xl:text-[1.2rem] font-normal leading-none text-slate-800 whitespace-nowrap">₹<span x-text="supplier.payment"></span></p>
+                                    </div>
+                                    <div class="supplier-stat-chip supplier-balance-chip p-4">
+                                        <p class="text-[7px] font-normal uppercase tracking-[0.16em] text-slate-400">Balance</p>
+                                        <p class="mt-3 text-[1.3rem] md:text-[1.4rem] xl:text-[1.2rem] font-normal leading-none text-red-500 whitespace-nowrap">₹<span x-text="supplier.balance"></span></p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between xl:justify-end gap-4 xl:w-[10%]">
+                                    <button @click="openSupplierActionPicker(supplier.name)" class="supplier-plus-pill" aria-label="Add supplier action">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </template>
+                </div>
+
+                <div>
+                    <section class="supplier-chart-shell p-6">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="liquid-glass-icon liquid-glass-icon-xs" style="--glass-accent: 139, 92, 246; --glass-ink: #7c3aed;">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16M7 16l3-5 4 3 3-6"></path>
+                                </svg>
+                            </span>
+                            <h3 class="text-2xl font-bold text-slate-800">Purchase Trends</h3>
+                        </div>
+                        <div class="supplier-chart-grid settings-inset h-[22rem] p-6 flex items-end justify-between gap-4">
+                            <template x-for="bar in [
+                                { month: 'Jan', height: '36%', tone: 'from-violet-400 to-violet-600' },
+                                { month: 'Feb', height: '52%', tone: 'from-sky-400 to-sky-600' },
+                                { month: 'Mar', height: '46%', tone: 'from-rose-400 to-orange-500' },
+                                { month: 'Apr', height: '70%', tone: 'from-emerald-400 to-emerald-600' },
+                                { month: 'May', height: '82%', tone: 'from-violet-400 to-fuchsia-600' }
+                            ]">
+                                <div class="flex-1 flex flex-col items-center justify-end gap-3">
+                                    <div class="w-full max-w-[54px] rounded-[1rem] shadow-lg shadow-slate-300/30 bg-gradient-to-t" :class="bar.tone" :style="'height:' + bar.height"></div>
+                                    <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400" x-text="bar.month"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="flex justify-start xl:justify-end mt-6">
+                    <section class="supplier-summary-card p-6 text-white w-full max-w-[360px]">
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] opacity-80">Total Directory Payables</p>
+                        <h3 class="text-4xl font-bold mt-4">₹<span x-text="totalDirectoryPayables"></span></h3>
+                        <p class="text-[11px] font-medium mt-4 opacity-80">Calculated from all active supplier balances in your filtered network.</p>
+                    </section>
+                </div>
+            </div>
+
+            <div x-show="activeTab === 'Settings'" class="pb-12" x-data="{ autoBackup: true, mailAlerts: true, compactLayout: false }">
+                <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-6 mb-10">
+                    <div>
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.3em] text-slate-400 mb-2">Control Deck</p>
+                        <h2 class="text-4xl font-bold text-slate-800 leading-none">Settings</h2>
+                        <p class="text-[11px] text-slate-500 font-medium mt-3">Tune vendor operations, page modules, theme behavior, and backup safety from one neumorphic workspace.</p>
+                    </div>
+                    <div class="settings-card px-5 py-4 flex items-center gap-4 max-w-md">
+                        <span class="liquid-glass-icon liquid-glass-icon-sm" style="--glass-accent: 71, 85, 105; --glass-ink: #334155;">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 018 0v2m-8 0h8m-9 4h10a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Workspace Security</p>
+                            <p class="text-sm font-bold text-slate-800 mt-1">3 profile locks active and backup synced 12 min ago.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card p-3 mb-8">
+                    <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+                        <button @click="settingsTab = 'Profile Setting'; focusProfilePinStart()" class="settings-tab" :class="{ active: settingsTab === 'Profile Setting' }">Profile Setting</button>
+                        <button @click="settingsTab = 'Add Panel'" class="settings-tab" :class="{ active: settingsTab === 'Add Panel' }">Add Panel</button>
+                        <button @click="settingsTab = 'Theeme'" class="settings-tab" :class="{ active: settingsTab === 'Theeme' }">Theeme</button>
+                        <button @click="settingsTab = 'Backup'" class="settings-tab" :class="{ active: settingsTab === 'Backup' }">Backup</button>
+                    </div>
+                </div>
+
+                <div x-show="settingsTab === 'Profile Setting'" class="grid grid-cols-12 gap-6">
+                    <div class="col-span-12 xl:col-span-4 settings-card p-6 flex flex-col gap-5">
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-slate-400">Brand Identity</p>
+                        <div class="settings-inset p-6 flex flex-col items-center text-center gap-4">
+                            <input x-ref="settingsLogoInput" @change="handleImageUpload($event, 'settingsLogo')" type="file" accept="image/png,image/svg+xml,image/jpeg" class="hidden">
+                            <template x-if="settingsLogoPreview">
+                                <img :src="settingsLogoPreview" alt="Settings logo preview" class="w-20 h-20 rounded-[1.4rem] object-cover shadow-lg shadow-slate-300/60">
+                            </template>
+                            <template x-if="!settingsLogoPreview">
+                                <div class="liquid-glass-icon liquid-glass-icon-lg rotate-12" style="--glass-accent: 239, 68, 68; --glass-ink: #ef4444;">
+                                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                            </template>
+                            <div>
+                                <p class="text-lg font-bold text-slate-800">ShopTracer Logo</p>
+                                <p class="text-[11px] font-medium text-slate-500 mt-1">Primary brand mark used on invoices, login, and vendor exports.</p>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-red-500 mt-2" x-text="settingsLogoName"></p>
+                            </div>
+                            <button @click="triggerUpload('settingsLogo')" class="settings-inset w-full py-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-red-500">Update Logo</button>
+                        </div>
+                    </div>
+
+                    <div class="col-span-12 xl:col-span-8 settings-card p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Admin Name</label>
+                                <div class="settings-inset">
+                                    <input x-model="profileAdminName" class="settings-input" type="text">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Business Name</label>
+                                <div class="settings-inset">
+                                    <input x-model="profileBusinessName" class="settings-input" type="text">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Contact</label>
+                                <div class="settings-inset">
+                                    <input x-model="profileContact" class="settings-input" type="tel">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Email</label>
+                                <div class="settings-inset">
+                                    <input x-model="profileEmail" class="settings-input" type="email">
+                                </div>
+                            </div>
+                            <div class="md:col-span-2 settings-card px-4 py-4">
+                                <div class="flex items-center justify-between gap-4 mb-4">
+                                    <div>
+                                        <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Change Pin</p>
+                                        <p class="text-sm font-bold text-slate-800 mt-1">Enter Admin pin</p>
+                                    </div>
+                                    <button @click="focusProfilePinStart()" class="liquid-glass-icon liquid-glass-icon-sm" style="--glass-accent: 59, 130, 246; --glass-ink: #2563eb;">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3zm0 0v8m-4-4h8"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-4 gap-3">
+                                    <div class="settings-inset settings-pin-shell px-2">
+                                        <input x-ref="pin0" @input="setPinDigit(0, $event)" @keydown.backspace.prevent="handlePinBackspace(0, $event)" maxlength="1" inputmode="numeric" class="settings-pin-box" type="password">
+                                    </div>
+                                    <div class="settings-inset settings-pin-shell px-2">
+                                        <input x-ref="pin1" @input="setPinDigit(1, $event)" @keydown.backspace.prevent="handlePinBackspace(1, $event)" maxlength="1" inputmode="numeric" class="settings-pin-box" type="password">
+                                    </div>
+                                    <div class="settings-inset settings-pin-shell px-2">
+                                        <input x-ref="pin2" @input="setPinDigit(2, $event)" @keydown.backspace.prevent="handlePinBackspace(2, $event)" maxlength="1" inputmode="numeric" class="settings-pin-box" type="password">
+                                    </div>
+                                    <div class="settings-inset settings-pin-shell px-2">
+                                        <input x-ref="pin3" @input="setPinDigit(3, $event)" @keydown.backspace.prevent="handlePinBackspace(3, $event)" maxlength="1" inputmode="numeric" class="settings-pin-box" type="password">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2 settings-inset px-5 py-4">
+                                <button @click="saveProfileSettings()" class="liquid-glass-button w-full px-6 py-3 text-white font-extrabold text-[10px] uppercase tracking-[0.18em]" style="border-radius: 1rem;">
+                                    <span class="liquid-glass-label">Save Profile</span>
+                                </button>
+                            </div>
+                            <div x-show="profileSaved" class="md:col-span-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-emerald-600 px-1">
+                                Profile settings updated locally.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="settingsTab === 'Add Panel'" class="grid grid-cols-12 gap-6">
+                    <div class="col-span-12 xl:col-span-7 settings-card p-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-slate-400">Active Panels</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-2">Dashboard Building Blocks</h3>
+                            </div>
+                            <span class="liquid-glass-icon liquid-glass-icon-sm" style="--glass-accent: 59, 130, 246; --glass-ink: #2563eb;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h16"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Supplier Insights</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-2">Track onboarding progress, pending KYC, and vendor health score.</p>
+                            </div>
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Payment Velocity</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-2">Surface faster payout routes and delayed settlement trends.</p>
+                            </div>
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Collection Radar</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-2">Watch receivables aging and top collectors across stores.</p>
+                            </div>
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Expense Windows</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-2">Split cost views by purchase cycle, supplier, and branch.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-12 xl:col-span-5 settings-card p-6">
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-slate-400">Quick Add</p>
+                        <div class="mt-5 space-y-4">
+                            <button class="settings-inset w-full px-4 py-4 flex items-center justify-between text-left">
+                                <span class="text-sm font-bold text-slate-800">Add KPI Ribbon</span>
+                                <span class="text-sky-500 font-black">+</span>
+                            </button>
+                            <button class="settings-inset w-full px-4 py-4 flex items-center justify-between text-left">
+                                <span class="text-sm font-bold text-slate-800">Add Approval Queue</span>
+                                <span class="text-emerald-500 font-black">+</span>
+                            </button>
+                            <button class="settings-inset w-full px-4 py-4 flex items-center justify-between text-left">
+                                <span class="text-sm font-bold text-slate-800">Add Activity Timeline</span>
+                                <span class="text-orange-500 font-black">+</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="settingsTab === 'Theeme'" class="grid grid-cols-12 gap-6">
+                    <div class="col-span-12 xl:col-span-8 settings-card p-6">
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-slate-400">Visual Presets</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+                            <button class="settings-card p-4 text-left border border-white/40">
+                                <div class="h-24 rounded-[1.2rem] bg-gradient-to-br from-[#eef2ff] via-[#e2e8f0] to-[#f8fafc] shadow-inner"></div>
+                                <p class="mt-4 text-sm font-bold text-slate-800">Morning Frost</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Airy neutral layout for reports.</p>
+                            </button>
+                            <button class="settings-card p-4 text-left border border-white/40">
+                                <div class="h-24 rounded-[1.2rem] bg-gradient-to-br from-rose-100 via-orange-100 to-red-100 shadow-inner"></div>
+                                <p class="mt-4 text-sm font-bold text-slate-800">Warm Ledger</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Red-orange purchase emphasis.</p>
+                            </button>
+                            <button class="settings-card p-4 text-left border border-white/40">
+                                <div class="h-24 rounded-[1.2rem] bg-gradient-to-br from-emerald-100 via-teal-100 to-lime-100 shadow-inner"></div>
+                                <p class="mt-4 text-sm font-bold text-slate-800">Calm Cashflow</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Green balance and payout states.</p>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-span-12 xl:col-span-4 settings-card p-6 space-y-5">
+                        <div class="settings-inset p-4">
+                            <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Density</p>
+                            <p class="text-sm font-bold text-slate-800 mt-2">Balanced</p>
+                        </div>
+                        <div class="settings-inset p-4">
+                            <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Corner Radius</p>
+                            <p class="text-sm font-bold text-slate-800 mt-2">Rounded Soft</p>
+                        </div>
+                        <div class="settings-card px-4 py-3 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Compact Layout</p>
+                                <p class="text-sm font-bold text-slate-800 mt-1">Reduce gutter space in tables</p>
+                            </div>
+                            <button @click="compactLayout = !compactLayout" class="settings-toggle">
+                                <span :class="compactLayout ? 'translate-x-[1.7rem] bg-gradient-to-br from-sky-400 to-sky-600' : ''"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="settingsTab === 'Backup'" class="grid grid-cols-12 gap-6">
+                    <div class="col-span-12 xl:col-span-5 settings-card p-6 space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-slate-400">Auto Backup</p>
+                                <p class="text-sm font-bold text-slate-800 mt-1">Protect purchases, payments, and settings.</p>
+                            </div>
+                            <button @click="autoBackup = !autoBackup" class="settings-toggle">
+                                <span :class="autoBackup ? 'translate-x-[1.7rem] bg-gradient-to-br from-emerald-400 to-emerald-600' : ''"></span>
+                            </button>
+                        </div>
+                        <div class="settings-inset p-4">
+                            <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Last Snapshot</p>
+                            <p class="text-lg font-bold text-slate-800 mt-2">Today, 11:48 AM</p>
+                            <p class="text-[11px] text-slate-500 mt-2">Encrypted copy pushed to cloud vault and local device cache.</p>
+                        </div>
+                    </div>
+                    <div class="col-span-12 xl:col-span-7 settings-card p-6">
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-slate-400">Recovery Kits</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Daily Mirror</p>
+                                <p class="text-[11px] text-slate-500 mt-2">Keep rolling seven-day copies.</p>
+                            </div>
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Monthly Archive</p>
+                                <p class="text-[11px] text-slate-500 mt-2">Store quarter-end business snapshots.</p>
+                            </div>
+                            <div class="settings-inset p-4">
+                                <p class="text-sm font-bold text-slate-800">Manual Export</p>
+                                <p class="text-[11px] text-slate-500 mt-2">Create a portable `.zip` pack on demand.</p>
+                            </div>
+                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+                            <button class="liquid-glass-button-green w-full py-4 text-white font-extrabold text-[10px] uppercase tracking-[0.2em]" style="border-radius: 1.1rem;">
+                                <span class="liquid-glass-label-green">Create Backup Now</span>
+                            </button>
+                            <button class="settings-inset w-full py-4 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-700">Download Restore Pack</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="activeTab === 'Home'">
             <!-- Table Header -->
             <div class="mb-3 flex justify-between items-center px-2">
                 <div class="flex items-center gap-4">
@@ -346,6 +864,35 @@
                         </div>
                     </div>
                 </template>
+            </div>
+            </div>
+
+            <div x-show="showSupplierActionPicker" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm" style="display: none;">
+                <div @click.away="showSupplierActionPicker = false" class="neu-outset supplier-action-picker w-full max-w-[26rem] p-4 sm:p-5 relative overflow-hidden">
+                    <div class="supplier-action-header flex items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h3 class="text-base font-semibold text-slate-800" x-text="supplierActionTarget || 'Supplier Action'"></h3>
+                        </div>
+                        <button @click="showSupplierActionPicker = false" class="supplier-action-close hover:scale-105 transition-transform" aria-label="Close action picker">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button @click="openSupplierPurchaseFlow()" class="supplier-type-option supplier-type-option-red">
+                            <span class="supplier-type-option__shine"></span>
+                            <span class="supplier-type-option__label">Add Purchase</span>
+                        </button>
+                        <button @click="openSupplierPaymentFlow()" class="supplier-type-option supplier-type-option-green">
+                            <span class="supplier-type-option__shine"></span>
+                            <span class="supplier-type-option__label">Add Amount</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
                       <!-- Purchase Modal Overlay -->
             <div x-show="showPurchaseModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" style="display: none;">
                 <div @click.away="showPurchaseModal = false" class="neu-outset w-full max-w-2xl p-6 relative overflow-hidden flex flex-col gap-4 bg-[#e2e8f0]"
