@@ -48,14 +48,15 @@
             background: #f0f4f8;
         }
     </style>
-  <script type="module" crossorigin src="/assets/index-eAhlLTcg.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DNwugaxx.css">
+  <script type="module" crossorigin src="/assets/index-Yqi7wbXR.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-SBGmOP_Y.css">
 </head>
 
 <body x-data="{
     activeTab: 'Home',
     showPurchaseModal: false,
     showPaymentModal: false,
+    showSupplierCreateModal: false,
     showSupplierActionPicker: false,
     supplierActionTarget: '',
     selectedSupplier: '',
@@ -78,6 +79,16 @@
     profileEmail: 'aryan@shoptracer.in',
     settingsLogoName: 'Recommended: 512 x 512 px, PNG or SVG',
     settingsLogoPreview: '',
+    supplierForm: {
+        name: '',
+        remark: '',
+        place: '',
+        mobile: '',
+        upiId: '',
+        qrCodeName: '',
+        qrCodePreview: ''
+    },
+    supplierFormError: '',
     profilePin: ['', '', '', ''],
     profileSaved: false,
     recognition: null,
@@ -130,8 +141,14 @@
     paymentFormReady() {
         return this.paymentSelectedSupplier.trim() && this.paymentAmount.trim()
     },
+    supplierFormReady() {
+        return this.supplierForm.name.trim() && this.supplierForm.remark.trim() && this.supplierForm.place.trim() && this.supplierForm.mobile.trim()
+    },
     focusSupplierSearch() {
         this.$nextTick(() => this.$refs.supplierSearchInput?.focus())
+    },
+    focusSupplierCreateNameInput() {
+        this.$nextTick(() => this.$refs.supplierCreateNameInput?.focus())
     },
     focusAmountInput() {
         this.$nextTick(() => this.$refs.amountInput?.focus())
@@ -160,6 +177,79 @@
     focusProfilePinStart() {
         this.$nextTick(() => this.$refs.pin0?.focus())
     },
+    resetSupplierForm() {
+        if (this.supplierForm.qrCodePreview) {
+            URL.revokeObjectURL(this.supplierForm.qrCodePreview)
+        }
+        this.supplierForm = {
+            name: '',
+            remark: '',
+            place: '',
+            mobile: '',
+            upiId: '',
+            qrCodeName: '',
+            qrCodePreview: ''
+        }
+        if (this.$refs.supplierQrInput) {
+            this.$refs.supplierQrInput.value = ''
+        }
+        this.supplierFormError = ''
+    },
+    openSupplierCreateModal() {
+        this.resetSupplierForm()
+        this.showSupplierCreateModal = true
+        this.$nextTick(() => this.focusSupplierCreateNameInput())
+    },
+    closeSupplierCreateModal() {
+        this.showSupplierCreateModal = false
+        this.supplierFormError = ''
+    },
+    saveSupplier() {
+        const name = this.supplierForm.name.trim()
+        const remark = this.supplierForm.remark.trim()
+        const place = this.supplierForm.place.trim()
+        const mobile = this.supplierForm.mobile.trim()
+        const upiId = this.supplierForm.upiId.trim()
+        const qrCodeName = this.supplierForm.qrCodeName
+        const qrCodePreview = this.supplierForm.qrCodePreview
+
+        if (!name || !remark || !place || !mobile) {
+            this.supplierFormError = 'Fill all supplier details before saving.'
+            if (!name) {
+                this.focusSupplierCreateNameInput()
+            }
+            return
+        }
+
+        const supplierExists = this.supplierDirectory.some((supplier) => supplier.name.toLowerCase() === name.toLowerCase())
+        if (supplierExists) {
+            this.supplierFormError = 'This supplier already exists in the directory.'
+            this.focusSupplierCreateNameInput()
+            return
+        }
+
+        this.suppliers.unshift(name)
+        this.supplierDirectory.unshift({
+            name,
+            phone: mobile,
+            remark,
+            place,
+            upiId,
+            qrCodeName,
+            qrCodePreview,
+            status: 'Active',
+            statusTone: 'emerald',
+            purchase: '0',
+            payment: '0',
+            balance: '0',
+            balanceTone: 'emerald',
+            icon: 'M4 7l8-4 8 4-8 4-8-4zm0 5l8 4 8-4M4 12v5l8 4 8-4v-5',
+            iconInk: '#8b5cf6',
+            iconAccent: '139, 92, 246'
+        })
+
+        this.closeSupplierCreateModal()
+    },
     openSupplierActionPicker(supplierName) {
         this.supplierActionTarget = supplierName
         this.showSupplierActionPicker = true
@@ -184,6 +274,7 @@
         if (kind === 'purchase') this.$refs.purchaseBillInput?.click()
         if (kind === 'payment') this.$refs.paymentReceiptInput?.click()
         if (kind === 'settingsLogo') this.$refs.settingsLogoInput?.click()
+        if (kind === 'supplierQr') this.$refs.supplierQrInput?.click()
     },
     handleImageUpload(event, kind) {
         const file = event.target.files?.[0]
@@ -202,6 +293,13 @@
             if (this.settingsLogoPreview) URL.revokeObjectURL(this.settingsLogoPreview)
             this.settingsLogoName = file.name
             this.settingsLogoPreview = nextUrl
+            return
+        }
+
+        if (kind === 'supplierQr') {
+            if (this.supplierForm.qrCodePreview) URL.revokeObjectURL(this.supplierForm.qrCodePreview)
+            this.supplierForm.qrCodeName = file.name
+            this.supplierForm.qrCodePreview = nextUrl
             return
         }
 
@@ -484,7 +582,7 @@
                                 </button>
                             </div>
                         </div>
-                        <button class="liquid-glass-button-violet w-auto px-6 py-3 text-white font-extrabold text-[10px] uppercase tracking-[0.18em] flex items-center justify-center gap-2" style="border-radius: 1rem;">
+                        <button type="button" @click="openSupplierCreateModal()" class="liquid-glass-button-violet w-auto px-6 py-3 text-white font-extrabold text-[10px] uppercase tracking-[0.18em] flex items-center justify-center gap-2" style="border-radius: 1rem;">
                             <span class="liquid-glass-icon liquid-glass-icon-xs" style="--glass-accent: 255, 255, 255; --glass-ink: #ffffff;">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -867,6 +965,116 @@
                     </div>
                 </template>
             </div>
+            </div>
+
+            <div x-show="showSupplierCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/35 backdrop-blur-sm" style="display: none;">
+                <div @click.away="closeSupplierCreateModal()" class="neu-outset supplier-action-picker w-full max-w-[34rem] p-5 sm:p-6 relative overflow-hidden">
+                    <div class="supplier-action-header flex items-center justify-between gap-3 mb-5">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800">Add Supplier</h3>
+                            <p class="text-[10px] font-semibold text-violet-500 mt-1">Create a new supplier profile</p>
+                        </div>
+                        <button @click="closeSupplierCreateModal()" class="supplier-action-close hover:scale-105 transition-transform" aria-label="Close add supplier popup">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form @submit.prevent="saveSupplier()" class="flex flex-col gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                            <div class="flex flex-col gap-4">
+                                <label class="block">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500 mb-2">Supplier Name</span>
+                                    <input
+                                        x-ref="supplierCreateNameInput"
+                                        x-model="supplierForm.name"
+                                        type="text"
+                                        placeholder="Enter supplier name"
+                                        class="neu-inset w-full px-4 py-3 text-[11px] font-semibold text-slate-700 bg-transparent border-none outline-none focus:outline-none focus:ring-2 focus:ring-violet-300/70"
+                                        style="border-radius: 0.95rem;"
+                                    >
+                                </label>
+                                <label class="block">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500 mb-2">Remarks</span>
+                                    <input
+                                        x-model="supplierForm.remark"
+                                        type="text"
+                                        placeholder="Short supplier note"
+                                        class="neu-inset w-full px-4 py-3 text-[11px] font-semibold text-slate-700 bg-transparent border-none outline-none focus:outline-none focus:ring-2 focus:ring-violet-300/70"
+                                        style="border-radius: 0.95rem;"
+                                    >
+                                </label>
+                                <label class="block">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500 mb-2">Place</span>
+                                    <input
+                                        x-model="supplierForm.place"
+                                        type="text"
+                                        placeholder="City, State"
+                                        class="neu-inset w-full px-4 py-3 text-[11px] font-semibold text-slate-700 bg-transparent border-none outline-none focus:outline-none focus:ring-2 focus:ring-violet-300/70"
+                                        style="border-radius: 0.95rem;"
+                                    >
+                                </label>
+                                <label class="block">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500 mb-2">Mobile</span>
+                                    <input
+                                        x-model="supplierForm.mobile"
+                                        type="text"
+                                        placeholder="+91 98765 43210"
+                                        class="neu-inset w-full px-4 py-3 text-[11px] font-semibold text-slate-700 bg-transparent border-none outline-none focus:outline-none focus:ring-2 focus:ring-violet-300/70"
+                                        style="border-radius: 0.95rem;"
+                                    >
+                                </label>
+                            </div>
+
+                            <div class="flex flex-col gap-4">
+                                <label class="block">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500 mb-2">UPI ID</span>
+                                    <input
+                                        x-model="supplierForm.upiId"
+                                        type="text"
+                                        placeholder="supplier@upi"
+                                        class="neu-inset w-full px-4 py-3 text-[11px] font-semibold text-slate-700 bg-transparent border-none outline-none focus:outline-none focus:ring-2 focus:ring-violet-300/70"
+                                        style="border-radius: 0.95rem;"
+                                    >
+                                </label>
+
+                                <div class="space-y-2">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500">QR Code Upload</span>
+                                    <input x-ref="supplierQrInput" @change="handleImageUpload($event, 'supplierQr')" type="file" accept="image/*" class="hidden">
+                                    <button
+                                        type="button"
+                                        @click="triggerUpload('supplierQr')"
+                                        class="neu-outset border-2 border-dashed border-violet-200 p-3 w-full min-h-[13.2rem] flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-violet-400 hover:bg-violet-50/20 transition-all rounded-[1rem]"
+                                    >
+                                        <template x-if="supplierForm.qrCodePreview">
+                                            <img :src="supplierForm.qrCodePreview" alt="Supplier QR preview" class="w-full h-28 object-contain rounded-[0.8rem] bg-white/40 p-2">
+                                        </template>
+                                        <template x-if="!supplierForm.qrCodePreview">
+                                            <span class="liquid-glass-icon liquid-glass-icon-sm" style="--glass-accent: 139, 92, 246; --glass-ink: #7c3aed;">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm11 0h1m-1 3h1m3-3h1m-4 6h1m3-3h1m-6-1h2m-2 4h6"></path>
+                                                </svg>
+                                            </span>
+                                        </template>
+                                        <span class="text-[9px] font-extrabold uppercase tracking-[0.2em] text-violet-500" x-text="supplierForm.qrCodeName || 'Upload QR Code'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p x-show="supplierFormError" x-text="supplierFormError" class="text-[10px] font-semibold text-rose-500 px-1"></p>
+
+                        <button
+                            type="submit"
+                            :disabled="!supplierFormReady()"
+                            class="liquid-glass-button-violet w-full py-4 text-white font-extrabold text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            style="border-radius: 1.2rem;"
+                        >
+                            <span class="liquid-glass-label-violet">Save Supplier</span>
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <div x-show="showSupplierActionPicker" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm" style="display: none;">
